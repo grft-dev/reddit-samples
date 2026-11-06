@@ -1,4 +1,4 @@
-// Illustrative REST controller — not Graftcode.
+// Illustrative REST controller - not Graftcode.
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,7 +18,8 @@ public class BillingController : ControllerBase
     [HttpPost("monthly-bill")]
     public ActionResult<MonthlyBillResponse> CalculateMonthlyBill([FromBody] MonthlyBillRequest request)
     {
-        var total = _billing.CalculateMonthlyBill(request.UnitPrice, request.Units);
-        return Ok(new MonthlyBillResponse { Total = total });
+        var total = _billing.CalculateMonthlyBill((double)request.UnitPrice, request.Units);
+        return Ok(new MonthlyBillResponse { Total = (decimal)total });
     }
 }
+

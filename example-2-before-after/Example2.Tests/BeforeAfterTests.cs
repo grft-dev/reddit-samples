@@ -13,11 +13,11 @@ public class BeforeAfterTests
     [Fact]
     public void Receiver_MatchesTheIntroductionProduct()
     {
-        var total = new ReceiverBilling().CalculateMonthlyBill(10m, 5);
-        Assert.Equal(50m, total);
-        Assert.Equal(59.97m, new ReceiverBilling().CalculateMonthlyBill(19.99m, 3));
+        var total = new ReceiverBilling().CalculateMonthlyBill(10d, 5);
+        Assert.Equal(50d, total);
+        Assert.Equal(59.97d, new ReceiverBilling().CalculateMonthlyBill(19.99d, 3), 2);
         Assert.Throws<ArgumentOutOfRangeException>(
-            () => new ReceiverBilling().CalculateMonthlyBill(10m, -1));
+            () => new ReceiverBilling().CalculateMonthlyBill(10d, -1));
     }
 
     [Fact]
@@ -67,9 +67,9 @@ public class BeforeAfterTests
     {
         GraftConfig.Host = null;
 
-        var total = MonthlyBillCaller.Calculate(10m, 5);
+        var total = MonthlyBillCaller.Calculate(10d, 5);
 
-        Assert.Equal(50m, total);
+        Assert.Equal(50d, total);
         Assert.Equal("ws://billing.example/ws", GraftConfig.Host);
         Assert.Empty(typeof(MonthlyBillCaller).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic));
         Assert.Empty(typeof(Billing.Caller.BillingService).GetFields(
@@ -87,7 +87,7 @@ public class BeforeAfterTests
     [Fact]
     public void Caller_PropagatesReceiverValidation()
     {
-        Assert.Throws<ArgumentOutOfRangeException>(() => MonthlyBillCaller.Calculate(10m, -1));
+        Assert.Throws<ArgumentOutOfRangeException>(() => MonthlyBillCaller.Calculate(10d, -1));
     }
 
     [Fact]
@@ -186,3 +186,5 @@ public class BeforeAfterTests
         }
     }
 }
+
+

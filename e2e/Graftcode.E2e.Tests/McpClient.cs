@@ -277,16 +277,6 @@ internal sealed class McpClient : IAsyncDisposable
 
     public static void AssertResultOrDecimalBinding(string body, decimal expected, string label)
     {
-        if (body.Contains("System.Decimal", StringComparison.Ordinal)
-            && body.Contains("cannot be converted", StringComparison.Ordinal))
-        {
-            // Gateway 1.4.14, installed by the quick start command, dispatches
-            // tools/call to the decimal parameter and then boxes the JSON
-            // number as Int32 or Double. MethodBase.Invoke does not convert
-            // those to System.Decimal. A numeric result also passes.
-            return;
-        }
-
         AssertDecimal(body, expected, label);
     }
 

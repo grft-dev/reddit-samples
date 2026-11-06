@@ -22,6 +22,6 @@ public class BillingService
         }
     }
 
-    public decimal CalculateMonthlyBill(decimal unitPrice, int units)
+    public double CalculateMonthlyBill(double unitPrice, int units)
         => new global::Billing.BillingService().CalculateMonthlyBill(unitPrice, units);
 }

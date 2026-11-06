@@ -50,7 +50,7 @@ The e2e project is not in `GraftcodeSamples.sln`, so the unit command above does
 
 What the e2e starts:
 
-- Example 1 builds `example-1-mcp-class/host/Dockerfile` and calls `http://localhost:81/mcp`. `tools/list` must include `CalculateMonthlyBill` and `ApplyTax`, and must not include `LateFee` or `FormatInvoice`. `tools/call` uses the argument names from that tool's `inputSchema` (the Java MCP quick start says not to assume source parameter names). No `Authorization` header is sent. The filter is not authorization. On the `gg` build installed by the quick start command here (Gateway 1.4.14), `tools/call` reached the `decimal` parameters and then failed inside the CLR because the JSON number was boxed as `Int32` or `Double`. The test accepts that observed binding error, and it also accepts a numeric result if a later build converts the value.
+- Example 1 builds `example-1-mcp-class/host/Dockerfile` and calls `http://localhost:81/mcp`. `tools/list` must include `CalculateMonthlyBill` and `ApplyTax`, and must not include `LateFee` or `FormatInvoice`. `tools/call` uses the argument names from that tool's `inputSchema` (the Java MCP quick start says not to assume source parameter names). No `Authorization` header is sent. The filter is not authorization. Amounts on the hosted methods are `double` and quantities are `int`, so a JSON number can bind on Gateway 1.4.14. The e2e tests require a numeric result.
 - Example 2 builds only `example-2-before-after/after-receiver/Dockerfile` and calls `CalculateMonthlyBill` through that Gateway. The illustrative REST project is not started. `LocalGraftStandIn` is still not a generated Graft and still does not open a socket. The hosted call is a real Gateway call. A `ws://` or `wss://` Graft remains a network call. The Caller source still has no `_billing` field.
 - Example 3 builds only `example-3-contracts/graftcode/Dockerfile` and calls that method through Gateway. The REST and gRPC fixtures are not started as servers.
 
@@ -90,7 +90,7 @@ The command names `CalculateMonthlyBill` and `ApplyTax`. `LateFee` is public and
 
 - `--types` and `--methods` select the callable surface. [Callable surface](https://docs.graftcode.com/core-concepts/callable-surface) says that surface is an exposure boundary, not an authorization boundary. The flags do not authenticate or authorize a caller. Invocation auth is application-defined: [Authentication and authorization operations](https://docs.graftcode.com/operations/authentication-and-authorization-operations).
 - The .NET MCP quick start says public methods are exposed as Grafts and that static methods are also MCP tools. Other sentences on that page, and the introduction, describe the MCP surface more broadly. Those sentences do not match. This sample follows the static-method sentence and does not describe instance members as MCP tools. [Known limitations](https://docs.graftcode.com/reference/known-limitations) say MCP scope depends on the runtime and configuration.
-- A JavaScript caller cannot represent every `decimal` exactly ([known limitations](https://docs.graftcode.com/reference/known-limitations)). This class uses `decimal` because it is a billing type. That is not a promise that the same signature is portable to every Caller.
+- On Gateway 1.4.14 (the `gg` installed by the quick start command), a JSON number arrives boxed as `Int32` or `Double`, and the CLR does not convert that to `System.Decimal`. This class uses `double` for amounts and `int` for units so `tools/call` can bind. That is a binding choice for this sample, not a claim that `double` is the right ledger type. A JavaScript caller still cannot represent every fraction exactly ([known limitations](https://docs.graftcode.com/reference/known-limitations)).
 
 ## Example 2 — Frontend to backend, before and after
 
@@ -132,7 +132,7 @@ There is no `_billing` field on the Caller.
 
 `example-3-contracts/`
 
-The same operation, `CalculateMonthlyBill(decimal, int)`, and the artifacts each path asks you to keep. This follows the comparison on the introduction and on [Use Graftcode alongside an existing REST API](https://docs.graftcode.com/how-to-guides/use-graftcode-alongside-an-existing-rest-api): REST and gRPC keep a protocol contract separate from the method; with Graftcode the supported public method surface is the contract and the installed Graft is the client.
+The same operation, `CalculateMonthlyBill` (unit price times units), and the artifacts each path asks you to keep. This follows the comparison on the introduction and on [Use Graftcode alongside an existing REST API](https://docs.graftcode.com/how-to-guides/use-graftcode-alongside-an-existing-rest-api): REST and gRPC keep a protocol contract separate from the method; with Graftcode the supported public method surface is the contract and the installed Graft is the client.
 
 | Path | What the sample keeps |
 | --- | --- |
@@ -142,7 +142,7 @@ The same operation, `CalculateMonthlyBill(decimal, int)`, and the artifacts each
 
 The three copies of the method are independent so each folder can be screenshotted on its own. The tests check that `10 * 5` and `19.99 * 3` agree.
 
-Money on the REST document is a JSON number, which is not an exact decimal type. Money on the proto is a string so the fraction is not a binary float. The Graftcode method uses `decimal` directly. Those are the contracts as written, not a ranking.
+Money on the REST document is a JSON number, which is not an exact decimal type. Money on the proto is a string so the fraction is not a binary float. The Graftcode method hosted for MCP uses `double` for amounts and `int` for units so JSON numbers bind on Gateway 1.4.14. The REST and gRPC sample methods still use `decimal` in-process; they are not started as MCP servers. Those are the contracts as written, not a ranking.
 
 The docs say a call still depends on the runtime pair, execution mode, payload, transport, topology, and workload, and that the documentation does not publish comparative numbers. This repo does not add any.
 

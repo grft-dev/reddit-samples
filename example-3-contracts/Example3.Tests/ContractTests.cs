@@ -13,11 +13,11 @@ public class ContractTests
     [Fact]
     public void ThreeContracts_AgreeOnTheSameProduct()
     {
-        Assert.Equal(50m, new Billing.Graftcode.BillingService().CalculateMonthlyBill(10m, 5));
+        Assert.Equal(50d, new Billing.Graftcode.BillingService().CalculateMonthlyBill(10d, 5));
         Assert.Equal(50m, new Billing.RestContract.BillingService().CalculateMonthlyBill(10m, 5));
         Assert.Equal(50m, new Billing.GrpcContract.BillingService().CalculateMonthlyBill(10m, 5));
 
-        Assert.Equal(59.97m, new Billing.Graftcode.BillingService().CalculateMonthlyBill(19.99m, 3));
+        Assert.Equal(59.97d, new Billing.Graftcode.BillingService().CalculateMonthlyBill(19.99d, 3), 2);
         Assert.Equal(59.97m, new Billing.RestContract.BillingService().CalculateMonthlyBill(19.99m, 3));
         Assert.Equal(59.97m, new Billing.GrpcContract.BillingService().CalculateMonthlyBill(19.99m, 3));
     }

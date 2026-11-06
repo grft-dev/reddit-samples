@@ -8,40 +8,41 @@ public class InvoiceCalculatorTests
     [Fact]
     public void CalculateMonthlyBill_MultipliesAndRoundsHalfAwayFromZero()
     {
-        Assert.Equal(50.00m, InvoiceCalculator.CalculateMonthlyBill(10m, 5));
-        Assert.Equal(10.01m, InvoiceCalculator.CalculateMonthlyBill(10.005m, 1));
-        Assert.Equal(10.00m, InvoiceCalculator.CalculateMonthlyBill(10.004m, 1));
-        Assert.Equal(-8.00m, InvoiceCalculator.CalculateMonthlyBill(-2m, 4));
+        Assert.Equal(50.00, InvoiceCalculator.CalculateMonthlyBill(10d, 5));
+        // 10.125 is an exact binary value; 10.005 is not.
+        Assert.Equal(10.13, InvoiceCalculator.CalculateMonthlyBill(10.125d, 1));
+        Assert.Equal(10.12, InvoiceCalculator.CalculateMonthlyBill(10.124d, 1));
+        Assert.Equal(-8.00, InvoiceCalculator.CalculateMonthlyBill(-2d, 4));
     }
 
     [Fact]
     public void CalculateMonthlyBill_RejectsNegativeUnits()
     {
         Assert.Throws<ArgumentOutOfRangeException>(
-            () => InvoiceCalculator.CalculateMonthlyBill(10m, -1));
+            () => InvoiceCalculator.CalculateMonthlyBill(10d, -1));
     }
 
     [Fact]
     public void ApplyTax_UsesFractionalRate()
     {
-        Assert.Equal(123.00m, InvoiceCalculator.ApplyTax(100m, 0.23m));
-        Assert.Equal(101.50m, InvoiceCalculator.ApplyTax(100m, 0.015m));
+        Assert.Equal(123.00, InvoiceCalculator.ApplyTax(100d, 0.23d));
+        Assert.Equal(101.50, InvoiceCalculator.ApplyTax(100d, 0.015d));
     }
 
     [Fact]
     public void ApplyTax_RejectsNegativeRate()
     {
         Assert.Throws<ArgumentOutOfRangeException>(
-            () => InvoiceCalculator.ApplyTax(100m, -0.01m));
+            () => InvoiceCalculator.ApplyTax(100d, -0.01d));
     }
 
     [Fact]
     public void LateFee_IsOneAndAHalfPercentPerDay()
     {
-        Assert.Equal(12.00m, InvoiceCalculator.LateFee(200m, 4));
-        Assert.Equal(0m, InvoiceCalculator.LateFee(200m, 0));
-        Assert.Equal(0m, InvoiceCalculator.LateFee(0m, 4));
-        Assert.Equal(0m, InvoiceCalculator.LateFee(-10m, 4));
+        Assert.Equal(12.00, InvoiceCalculator.LateFee(200d, 4));
+        Assert.Equal(0d, InvoiceCalculator.LateFee(200d, 0));
+        Assert.Equal(0d, InvoiceCalculator.LateFee(0d, 4));
+        Assert.Equal(0d, InvoiceCalculator.LateFee(-10d, 4));
     }
 
     [Fact]
@@ -51,7 +52,7 @@ public class InvoiceCalculatorTests
         Assert.NotNull(method);
         Assert.True(method.IsPublic);
         Assert.False(method.IsStatic);
-        Assert.Equal("Invoice total 50.00", new InvoiceCalculator().FormatInvoice(50m));
+        Assert.Equal("Invoice total 50.00", new InvoiceCalculator().FormatInvoice(50d));
     }
 
     [Fact]
@@ -62,7 +63,7 @@ public class InvoiceCalculatorTests
             BindingFlags.Static | BindingFlags.NonPublic);
         Assert.NotNull(method);
         Assert.False(method.IsPublic);
-        var rounded = (decimal)method.Invoke(null, [1.235m])!;
-        Assert.Equal(1.24m, rounded);
+        var rounded = (double)method.Invoke(null, [2.125d])!;
+        Assert.Equal(2.13, rounded);
     }
 }
