@@ -1,0 +1,22 @@
+syntax = "proto3";
+
+option csharp_namespace = "Billing.GrpcContract";
+
+package billing;
+
+// What you maintain on this path: this .proto file, plus codegen
+// (the Grpc.Tools item in the project file). The C# client and the
+// service base are generated from this file. Not a Graftcode document.
+
+service BillingApi {
+  rpc CalculateMonthlyBill (MonthlyBillRequest) returns (MonthlyBillResponse);
+}
+
+message MonthlyBillRequest {
+  string unit_price = 1;
+  int32 units = 2;
+}
+
+message MonthlyBillResponse {
+  string total = 1;
+}

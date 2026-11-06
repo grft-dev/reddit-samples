@@ -1,0 +1,43 @@
+openapi: 3.0.3
+info:
+  title: Billing API
+  version: 1.0.0
+  description: Illustrative REST contract. Not a Graftcode document.
+paths:
+  /api/v1/billing/monthly-bill:
+    post:
+      operationId: calculateMonthlyBill
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MonthlyBillRequest"
+      responses:
+        "200":
+          description: Calculated total
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/MonthlyBillResponse"
+components:
+  schemas:
+    MonthlyBillRequest:
+      type: object
+      additionalProperties: false
+      required: [unitPrice, units]
+      properties:
+        unitPrice:
+          type: number
+          description: JSON number for a C# decimal. Not an exact decimal type.
+        units:
+          type: integer
+          format: int32
+    MonthlyBillResponse:
+      type: object
+      additionalProperties: false
+      required: [total]
+      properties:
+        total:
+          type: number
+          description: JSON number for a C# decimal. Not an exact decimal type.

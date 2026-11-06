@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>Billing.Caller</RootNamespace>
+    <AssemblyName>Billing.Caller</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\after-receiver\Billing.Receiver.csproj" />
+  </ItemGroup>
+</Project>

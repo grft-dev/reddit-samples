@@ -1,0 +1,62 @@
+# Build artifacts
+[Bb]in/
+[Oo]bj/
+artifacts/
+[Ll]og/
+[Ll]ogs/
+*.log
+
+# Test results
+[Tt]est[Rr]esult*/
+TestResults/
+*.trx
+*.coverage
+*.coveragexml
+coverage/
+
+# User secrets and local config
+**/secrets.json
+**/appsettings.*.local.json
+*.user
+*.rsuser
+*.suo
+*.userosscache
+*.sln.docstates
+.env
+.env.*
+!.env.example
+
+# Visual Studio / Rider / VS Code / other IDE
+.vs/
+.idea/
+*.sln.iml
+.vscode/*
+!.vscode/extensions.json
+
+# Docker leftovers
+**/.docker/
+**/*.tar
+docker-compose.override.yml
+
+# OS junk
+.DS_Store
+.DS_Store?
+._*
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# .NET / NuGet
+.dotnet/
+project.lock.json
+project.fragment.lock.json
+*.nupkg
+*.snupkg
+**/[Pp]ackages/*
+!**/[Pp]ackages/build/
+
+# Editor junk
+*~
+*.swp
+*.tmp

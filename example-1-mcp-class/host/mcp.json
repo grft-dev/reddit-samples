@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "invoice-calculator": {
+      "url": "http://localhost:81/mcp"
+    }
+  }
+}
