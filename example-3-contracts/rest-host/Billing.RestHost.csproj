@@ -1,0 +1,10 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <RootNamespace>Billing.RestHost</RootNamespace>
+    <AssemblyName>Billing.RestHost</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\rest\Billing.RestContract.csproj" />
+  </ItemGroup>
+</Project>

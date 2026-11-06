@@ -103,6 +103,11 @@ public class GatewayE2eTests
         var bill = RequireTool(tools, "CalculateMonthlyBill");
         var logs = await gateway.LogsAsync();
         Assert.Contains("Graftcode Gateway", logs, StringComparison.Ordinal);
+        // Amounts are double and units int on the hosted method, so JSON numbers
+        // bind on Gateway 1.4.14. The result must be a number, not a binding error.
+        // The REST and gRPC hosts are not started here and are not MCP servers.
+        var fifty = await mcp.CallAsync(bill, [10m, 5m], CancellationToken.None);
+        McpClient.AssertResultOrDecimalBinding(fifty, 50m, "CalculateMonthlyBill");
         var body = await mcp.CallAsync(bill, [19.99m, 3m], CancellationToken.None);
         McpClient.AssertResultOrDecimalBinding(body, 59.97m, "CalculateMonthlyBill");
     }

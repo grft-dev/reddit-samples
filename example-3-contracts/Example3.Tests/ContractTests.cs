@@ -103,6 +103,21 @@ public class ContractTests
             ["Billing.GrpcContract.csproj", "BillingGrpcService.cs", "BillingService.cs", "billing.proto"],
             Names(Path.Combine(exampleDir, "grpc")));
 
+        // Hosts used by the e2e suite live beside the contract folders, not inside them.
+        Assert.Equal(
+            ["Billing.RestHost.csproj", "Program.cs"],
+            Names(Path.Combine(exampleDir, "rest-host")));
+        Assert.Equal(
+            ["Billing.GrpcHost.csproj", "Program.cs"],
+            Names(Path.Combine(exampleDir, "grpc-host")));
+        foreach (var host in new[] { "rest-host", "grpc-host" })
+        {
+            var program = File.ReadAllText(Path.Combine(exampleDir, host, "Program.cs"));
+            Assert.Contains("not Graftcode", program, StringComparison.Ordinal);
+            Assert.Contains("It is not an MCP server", program, StringComparison.Ordinal);
+            Assert.DoesNotContain("AddMcp", program, StringComparison.Ordinal);
+        }
+
         var graft = File.ReadAllText(Path.Combine(exampleDir, "graftcode", "BillingService.cs"));
         Assert.Contains("public method signature", graft, StringComparison.Ordinal);
         Assert.DoesNotContain("[Route", graft, StringComparison.Ordinal);

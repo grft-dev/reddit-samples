@@ -22,7 +22,7 @@ dotnet test example-3-contracts/Example3.Tests
 
 What they do:
 
-- Compile every sample project in the solution.
+- Compile every sample project in the solution, including the example-3 hosts `rest-host/` and `grpc-host/`. The unit run does not start them.
 - Check method results, the illustrative HTTP client against a stub handler, and the gRPC adapter against the service base `Grpc.Tools` generates during the build.
 - Check that the sample files contain the documented flags, the MCP URL, the illustrative-REST marker, and the Caller wiring.
 - Reject copy this repo will not show: a callable-surface filter described as authentication, and any throughput or latency comparison.
@@ -36,7 +36,12 @@ What they do not do:
 
 ## Run the e2e tests
 
-Requirements:
+The e2e project has two kinds of tests:
+
+- Gateway tests (examples 1, 2, and the Graftcode path of example 3) build a Dockerfile, run Gateway on ports `80` and `81`, and call `http://localhost:81/mcp`.
+- Example 3 REST and gRPC tests start a real Kestrel server in the test process on `127.0.0.1` with an ephemeral port (`http://127.0.0.1:0`) and call it over TCP. They do not need Docker and never bind `80` or `81`.
+
+Requirements for the Gateway tests:
 
 - Docker, with a running daemon.
 - Network access during `docker build`. Graftcode does not publish a Gateway image to `docker pull` ([Deploy Gateway with Docker](https://docs.graftcode.com/how-to-guides/deploy-gateway-with-docker), [Run Gateway locally](https://docs.graftcode.com/how-to-guides/run-gateway-locally)). Each Dockerfile starts from `mcr.microsoft.com/dotnet/sdk:9.0` and installs `gg` with the [.NET MCP quick start](https://docs.graftcode.com/quick-start/expose-mcp/dotnet) command: `curl -fsSL grft.dev/get/gg | sh && dpkg -i gg.deb`.
@@ -46,13 +51,19 @@ Requirements:
 dotnet test e2e/Graftcode.E2e.Tests/Graftcode.E2e.Tests.csproj
 ```
 
-The e2e project is not in `GraftcodeSamples.sln`, so the unit command above does not build images. If `docker info` fails, each e2e test is skipped instead of failing.
+The e2e project is not in `GraftcodeSamples.sln`, so the unit command above does not build images. If `docker info` fails, each Gateway test is skipped instead of failing. The REST and gRPC tests still run.
+
+If another container already publishes `80` or `81` (for example a manually started `graftcode-sample-invoice-calculator`), stop it first with `docker stop <name>`; the suite only removes the containers it names itself.
 
 What the e2e starts:
 
 - Example 1 builds `example-1-mcp-class/host/Dockerfile` and calls `http://localhost:81/mcp`. `tools/list` must include `CalculateMonthlyBill` and `ApplyTax`, and must not include `LateFee` or `FormatInvoice`. `tools/call` uses the argument names from that tool's `inputSchema` (the Java MCP quick start says not to assume source parameter names). No `Authorization` header is sent. The filter is not authorization. Amounts on the hosted methods are `double` and quantities are `int`, so a JSON number can bind on Gateway 1.4.14. The e2e tests require a numeric result.
 - Example 2 builds only `example-2-before-after/after-receiver/Dockerfile` and calls `CalculateMonthlyBill` through that Gateway. The illustrative REST project is not started. `LocalGraftStandIn` is still not a generated Graft and still does not open a socket. The hosted call is a real Gateway call. A `ws://` or `wss://` Graft remains a network call. The Caller source still has no `_billing` field.
-- Example 3 builds only `example-3-contracts/graftcode/Dockerfile` and calls that method through Gateway. The REST and gRPC fixtures are not started as servers.
+- Example 3 exercises each of its three paths over the network, each on its own server:
+  - REST: `example-3-contracts/rest-host` (`RestHost.Build`) serves `BillingController` from `rest/` on Kestrel at `http://127.0.0.1:<ephemeral>`. The test sends `POST /api/v1/billing/monthly-bill` with JSON `{ "unitPrice": ..., "units": ... }` and reads `{ "total": ... }` as a decimal: `10` and `5` give `50`, `19.99` and `3` give `59.97`. It also checks that `/mcp` is a 404 on that host. No stub handler and no in-process controller call.
+  - gRPC: `example-3-contracts/grpc-host` (`GrpcHost.Build`) maps `BillingGrpcService` from `grpc/` on Kestrel, plaintext HTTP/2, at `http://127.0.0.1:<ephemeral>`. The test calls the generated `BillingApi.BillingApiClient` through a `GrpcChannel`. `unit_price` and `total` are proto strings: `"10"` and `5` give `50`, `"19.99"` and `3` give `59.97`, and `unit_price = "nope"` returns status `InvalidArgument` over the wire.
+  - Graftcode: builds only `example-3-contracts/graftcode/Dockerfile` and calls `CalculateMonthlyBill` through Gateway at `http://localhost:81/mcp`. `10` and `5` must return the number `50`, and `19.99` and `3` must return `59.97`. The hosted method takes `double` and `int`, so the JSON numbers bind on Gateway 1.4.14.
+  - The REST and gRPC hosts are not MCP servers and are not started inside the Gateway image. Only the Graftcode path goes through `/mcp`.
 
 What the e2e does not do:
 
@@ -61,7 +72,21 @@ What the e2e does not do:
 - It does not run ads.
 - Local image tags such as `graftcode-sample-invoice-calculator:e2e` are tags this suite passes to `docker build`. They are not images Graftcode publishes.
 
-The three e2e tests share ports `80` and `81`, so the project disables parallel test execution.
+The three Gateway tests share ports `80` and `81`, so the project disables parallel test execution.
+
+Run the example-3 hosts by hand:
+
+```bash
+# REST on http://127.0.0.1:5080
+dotnet run --project example-3-contracts/rest-host -- http://127.0.0.1:5080
+curl -s -X POST http://127.0.0.1:5080/api/v1/billing/monthly-bill \
+  -H "Content-Type: application/json" -d '{"unitPrice":19.99,"units":3}'
+
+# gRPC (plaintext HTTP/2) on http://127.0.0.1:5081; grpcurl reads the .proto, no reflection service
+dotnet run --project example-3-contracts/grpc-host -- http://127.0.0.1:5081
+grpcurl -plaintext -import-path example-3-contracts/grpc -proto billing.proto \
+  -d '{"unit_price":"19.99","units":3}' 127.0.0.1:5081 billing.BillingApi/CalculateMonthlyBill
+```
 
 ## Example 1 — MCP from a class
 
@@ -140,7 +165,9 @@ The same operation, `CalculateMonthlyBill` (unit price times units), and the art
 | `grpc/` | `billing.proto` and the `Grpc.Tools` codegen item. `BillingGrpcService` maps proto strings onto the method. The client and service base are generated at build time. |
 | `graftcode/` | The public method only. No route, DTO, OpenAPI document, or `.proto`. |
 
-The three copies of the method are independent so each folder can be screenshotted on its own. The tests check that `10 * 5` and `19.99 * 3` agree.
+`rest-host/` and `grpc-host/` are not part of either contract. Each is a `Program.cs` that starts Kestrel for the folder next to it so the e2e suite can call it over TCP. They sit beside `rest/` and `grpc/` so those folders still show only the contract artifacts.
+
+The three copies of the method are independent so each folder can be screenshotted on its own. The unit tests check that `10 * 5` and `19.99 * 3` agree in-process, and the e2e tests check the same two cases over REST, gRPC, and Gateway MCP.
 
 Money on the REST document is a JSON number, which is not an exact decimal type. Money on the proto is a string so the fraction is not a binary float. The Graftcode method hosted for MCP uses `double` for amounts and `int` for units so JSON numbers bind on Gateway 1.4.14. The REST and gRPC sample methods still use `decimal` in-process; they are not started as MCP servers. Those are the contracts as written, not a ranking.
 

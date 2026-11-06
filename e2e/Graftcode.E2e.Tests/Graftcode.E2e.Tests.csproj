@@ -7,6 +7,15 @@
     <RootNamespace>Graftcode.E2e.Tests</RootNamespace>
   </PropertyGroup>
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Example 3 REST and gRPC hosts. Started in-process on 127.0.0.1 with an ephemeral port. -->
+    <ProjectReference Include="..\..\example-3-contracts\rest-host\Billing.RestHost.csproj" />
+    <ProjectReference Include="..\..\example-3-contracts\grpc-host\Billing.GrpcHost.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Grpc.Net.Client" Version="2.71.0" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.14.1" />
     <PackageReference Include="xunit" Version="2.9.3" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" />

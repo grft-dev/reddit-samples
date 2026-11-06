@@ -20,6 +20,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing.GrpcContract", "exa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Example3.Tests", "example-3-contracts\Example3.Tests\Example3.Tests.csproj", "{4F212D1D-4789-4AAE-8560-2CBBA7D86FCD}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing.RestHost", "example-3-contracts\rest-host\Billing.RestHost.csproj", "{BAAC42DF-5F25-4B4A-B9FD-64A7CC5A46E3}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Billing.GrpcHost", "example-3-contracts\grpc-host\Billing.GrpcHost.csproj", "{DE9B5ECB-D256-4B47-8052-22444E29B239}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,5 +70,13 @@ Global
 		{4F212D1D-4789-4AAE-8560-2CBBA7D86FCD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4F212D1D-4789-4AAE-8560-2CBBA7D86FCD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4F212D1D-4789-4AAE-8560-2CBBA7D86FCD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAAC42DF-5F25-4B4A-B9FD-64A7CC5A46E3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAAC42DF-5F25-4B4A-B9FD-64A7CC5A46E3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAAC42DF-5F25-4B4A-B9FD-64A7CC5A46E3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAAC42DF-5F25-4B4A-B9FD-64A7CC5A46E3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DE9B5ECB-D256-4B47-8052-22444E29B239}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DE9B5ECB-D256-4B47-8052-22444E29B239}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DE9B5ECB-D256-4B47-8052-22444E29B239}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DE9B5ECB-D256-4B47-8052-22444E29B239}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
